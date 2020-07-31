@@ -29,7 +29,7 @@ Memory persistence has the following configuration properties:
 
 Example:
 ```yaml
-- descriptor: "pip-services-retries:persistence:memory:default:1.0"
+- descriptor: "pip-clients-retries:persistence:memory:default:1.0"
   options:
     max_page_size: 100
 ```
@@ -43,8 +43,8 @@ Flat file persistence has the following configuration properties:
 
 Example:
 ```yaml
-- descriptor: "pip-services-retries:persistence:file:default:1.0"
-  path: "./data/jobs"
+- descriptor: "pip-clients-retries:persistence:file:default:1.0"
+  path: "./data/retries"
 ```
 
 ### <a name="persistence_mongodb"></a> MongoDB
@@ -56,8 +56,8 @@ MongoDB persistence has the following configuration properties:
 
 Example:
 ```yaml
-- descriptor: "pip-services-retries:persistence:file:default:1.0"
-  collection: "jobs"
+- descriptor: "pip-clients-retries:persistence:file:default:1.0"
+  collection: "retries"
   connection:
     uri: "mongodb://localhost/pipservicestest"
     host: "localhost"
@@ -75,12 +75,8 @@ Besides component descriptor it doesn't expect configuration options.
 
 Example:
 ```yaml
-- descriptor: "pip-services-retries:controller:default:default:1.0"
-  options:
-    # Interval beatween call garbage collector for delete old jobs, if clean_interval=0 GC is stop 
-    clean_interval: 60000
-    # Max count of restarts for one job
-    max_retries: 10
+- descriptor: "pip-clients-retries:controller:default:default:1.0"
+    
 ```
 
 ## <a name="service"></a> Services
@@ -101,7 +97,7 @@ A detailed description of HTTP protocol version 1 can be found [here](HttpProtoc
 
 Example:
 ```yaml
-- descriptor: "pip-services-retries:service:http:default:1.0"
+- descriptor: "pip-clients-retries:service:http:default:1.0"
   connection:
     protocol: "http"
     host: "0.0.0.0"
