@@ -2,25 +2,25 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const pip_services3_commons_node_1 = require("pip-services3-commons-node");
 class RetriesNullClientV1 {
-    getCollectionNames(correlationId, callback) {
+    getGroupNames(correlationId, callback) {
         callback(null, new Array());
     }
     getRetries(correlationId, filter, paging, callback) {
         callback(null, new pip_services3_commons_node_1.DataPage());
     }
-    addRetry(correlationId, collection, id, timeToLive, callback) {
+    addRetry(correlationId, group, id, timeToLive, callback) {
         callback(null, null);
     }
-    addRetries(correlationId, collection, ids, timeToLive, callback) {
+    addRetries(correlationId, group, ids, timeToLive, callback) {
         callback(null, new Array());
     }
-    getRetryById(correlationId, collection, id, callback) {
+    getRetryById(correlationId, group, id, callback) {
         callback(null, null);
     }
-    getRetryByIds(correlationId, collection, ids, callback) {
+    getRetryByIds(correlationId, group, ids, callback) {
         callback(null, null);
     }
-    deleteRetry(correlationId, collection, id, callback) {
+    deleteRetry(correlationId, group, id, callback) {
         callback(null);
     }
 }

@@ -1,7 +1,7 @@
 import { Factory } from 'pip-services3-components-node';
 import { Descriptor } from 'pip-services3-commons-node';
 
-import { RetriesDirectClientV1 } from '../version1/RetiresDirectClientV1';
+import { RetriesDirectClientV1 } from '../version1/RetriesDirectClientV1';
 import { RetriesMemoryClientV1 } from '../version1/RetriesMemoryClientV1';
 import { RetriesHttpClientV1 } from '../version1/RetriesHttpClientV1';
 import { RetriesNullClientV1 } from '../version1/RetriesNullClientV1';

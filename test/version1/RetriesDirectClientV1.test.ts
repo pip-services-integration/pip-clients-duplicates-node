@@ -6,7 +6,7 @@ import { References } from 'pip-services3-commons-node';
 import { RetriesMemoryPersistence } from 'pip-services-retries-node';
 import { RetriesController } from 'pip-services-retries-node';
 
-import { RetriesDirectClientV1 } from '../../src/version1/RetiresDirectClientV1';
+import { RetriesDirectClientV1 } from '../../src/version1/RetriesDirectClientV1';
 import { RetriesClientV1Fixture } from './RetriesClientV1Fixture';
 
 
@@ -43,8 +43,8 @@ suite('RetriesDirectClientV1', () => {
         persistence.close(null, done);
     });
 
-    test('Get Retry Collections', (done) => {
-        fixture.testGetRetryCollections(done);
+    test('Get Retry Groups', (done) => {
+        fixture.testGetRetryGroups(done);
     });
 
     test('Get Retries', (done) => {

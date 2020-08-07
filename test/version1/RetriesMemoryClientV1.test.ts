@@ -24,8 +24,8 @@ suite('RetriesDirectClientV1', () => {
         done();
     });
 
-    test('Get Retry Collections', (done) => {
-        fixture.testGetRetryCollections(done);
+    test('Get Retry Groups', (done) => {
+        fixture.testGetRetryGroups(done);
     });
 
     test('Get Retries', (done) => {

@@ -1,70 +1,73 @@
-import { IRetriesClient } from "./IRetriesClient";
-import { FilterParams, PagingParams, DataPage } from "pip-services3-commons-node";
+import { FilterParams } from "pip-services3-commons-node";
+import { PagingParams } from "pip-services3-commons-node";
+import { DataPage } from "pip-services3-commons-node";
 import { CommandableHttpClient } from 'pip-services3-rpc-node';
+
+import { IRetriesClientV1 } from "./IRetriesClientV1";
 import { RetryV1 } from "./RetryV1";
 
-export class RetriesHttpClientV1 extends CommandableHttpClient implements IRetriesClient {
+export class RetriesHttpClientV1 extends CommandableHttpClient implements IRetriesClientV1 {
 
     public constructor() {
         super('v1/retries');
     }
 
-    addRetry(correlationId: string, collection: string, id: string, timeToLive: number, callback: (err: any, retry: RetryV1) => void) {
+    addRetry(correlationId: string, group: string, id: string, timeToLive: number, callback: (err: any, retry: RetryV1) => void) {
         this.callCommand(
             'add_retry',
             correlationId,
             {
                 id: id,
-                collection: collection,
+                group: group,
                 ttl: timeToLive
             },
             callback
         );
     }
 
-    addRetries(correlationId: string, collection: string, ids: string[], timeToLive: number, callback: (err: any, retry: RetryV1[]) => void) {
+    addRetries(correlationId: string, group: string, ids: string[], timeToLive: number, callback: (err: any, retry: RetryV1[]) => void) {
         this.callCommand(
             'add_retries',
             correlationId,
             {
                 ids: ids,
-                collection: collection,
+                group: group,
                 ttl: timeToLive
             },
             callback
         );
     }
-    getRetryById(correlationId: string, collection: string, id: string, callback: (err: any, retry: RetryV1) => void): void {
+    getRetryById(correlationId: string, group: string, id: string, callback: (err: any, retry: RetryV1) => void): void {
         this.callCommand(
             'get_retry_by_id',
             correlationId,
             {
                 id: id,
-                collection: collection
+                group: group
             },
             callback
         );
     }
 
-    getRetryByIds(correlationId: string, collection: string, ids: string[], callback: (err: any, retry: RetryV1[]) => void): void {
+    getRetryByIds(correlationId: string, group: string, ids: string[], callback: (err: any, retry: RetryV1[]) => void): void {
         this.callCommand(
             'get_retry_by_ids',
             correlationId,
             {
                 ids: ids,
-                collection: collection
+                group: group
             },
             callback
         );
     }
 
-    deleteRetry(correlationId: string, collection: string, id: string, callback: (err: any) => void): void {
+    deleteRetry(correlationId: string, group: string, id: string, callback: (err: any) => void): void {
         this.callCommand(
             'delete_retry',
             correlationId,
             {
                 ids: id,
-                collection: collection
+                group: group
             },
             (err, res) => {
                 callback(err);
@@ -72,9 +75,9 @@ export class RetriesHttpClientV1 extends CommandableHttpClient implements IRetri
         );
     }
 
-    getCollectionNames(correlationId: string, callback: (err: any, items: string[]) => void) {
+    getGroupNames(correlationId: string, callback: (err: any, items: string[]) => void) {
         this.callCommand(
-            'get_collection_names',
+            'get_group_names',
             correlationId,
             {},
             callback

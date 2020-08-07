@@ -1,11 +1,15 @@
 let _ = require('lodash');
 let async = require('async');
 
-import { IRetriesClient } from "./IRetriesClient";
-import { FilterParams, PagingParams, DataPage, IdGenerator } from "pip-services3-commons-node";
+import { FilterParams } from "pip-services3-commons-node";
+import { PagingParams } from "pip-services3-commons-node";
+import { IdGenerator } from "pip-services3-commons-node";
+import { DataPage } from "pip-services3-commons-node";
+
+import { IRetriesClientV1 } from "./IRetriesClientV1";
 import { RetryV1 } from "./RetryV1";
 
-export class RetriesMemoryClientV1 implements IRetriesClient {
+export class RetriesMemoryClientV1 implements IRetriesClientV1 {
     private _maxPageSize: number = 100;
     private _items: RetryV1[];
     private readonly _defaultTTL: number = 7 * 24 * 60 * 60 * 1000;
@@ -18,7 +22,7 @@ export class RetriesMemoryClientV1 implements IRetriesClient {
         filter = filter || new FilterParams();
 
         let id = filter.getAsNullableString('id');
-        let collection = filter.getAsNullableString('collection');
+        let group = filter.getAsNullableString('group');
         let attempt_count = filter.getAsNullableString('attempt_count');
         let last_attempt_time = filter.getAsNullableBoolean('last_attempt_time');
         let ids = filter.getAsObject('ids');
@@ -34,7 +38,7 @@ export class RetriesMemoryClientV1 implements IRetriesClient {
                 return false;
             if (ids && _.indexOf(ids, item.id) < 0)
                 return false;
-            if (collection && item.collection != collection)
+            if (group && item.group != group)
                 return false;
             if (attempt_count && item.customer_id != attempt_count)
                 return false;
@@ -44,7 +48,7 @@ export class RetriesMemoryClientV1 implements IRetriesClient {
         };
     }
 
-    private createRetries(collection: string, ids: string[], timeToLive: number): RetryV1[] {
+    private createRetries(group: string, ids: string[], timeToLive: number): RetryV1[] {
         let now = new Date();
         let expirationTime = new Date(Date.now() + timeToLive);
         let result: RetryV1[] = [];
@@ -52,7 +56,7 @@ export class RetriesMemoryClientV1 implements IRetriesClient {
         for (let _id of ids) {
             let retry: RetryV1 = {
                 id: _id,
-                collection: collection,
+                group: group,
                 last_attempt_time: now,
                 expiration_time: expirationTime,
                 attempt_count: 1
@@ -62,15 +66,15 @@ export class RetriesMemoryClientV1 implements IRetriesClient {
         return result;
     }
 
-    public addRetry(correlationId: string, collection: string, id: string, timeToLive: number, callback: (err: any, retry: RetryV1) => void) {
-        this.addRetries(correlationId, collection, [id], timeToLive, (err, retries) => {
+    public addRetry(correlationId: string, group: string, id: string, timeToLive: number, callback: (err: any, retry: RetryV1) => void) {
+        this.addRetries(correlationId, group, [id], timeToLive, (err, retries) => {
             callback(err, retries && retries.length > 0 ? retries[0] : null);
         });
     }
 
-    public addRetries(correlationId: string, collection: string, ids: string[], timeToLive: number, callback: (err: any, retry: RetryV1[]) => void) {
+    public addRetries(correlationId: string, group: string, ids: string[], timeToLive: number, callback: (err: any, retry: RetryV1[]) => void) {
         let result: RetryV1[] = [];
-        if (collection == null || ids == null || ids.length == 0) {
+        if (group == null || ids == null || ids.length == 0) {
             return result;
         }
 
@@ -78,7 +82,7 @@ export class RetriesMemoryClientV1 implements IRetriesClient {
 
         async.series([
             (callback) => {
-                retries = this.createRetries(collection, ids, timeToLive);
+                retries = this.createRetries(group, ids, timeToLive);
                 callback();
             },
             (callback) => {
@@ -86,7 +90,7 @@ export class RetriesMemoryClientV1 implements IRetriesClient {
                 async.whilst(() => { return index >= 0 },
                     (cb) => {
                         let retry = retries[index--];
-                        this.getRetryById(correlationId, retry.collection, retry.id, (err, item) => {
+                        this.getRetryById(correlationId, retry.group, retry.id, (err, item) => {
 
                             if (item != null) {
                                 retry.attempt_count = ++item.attempt_count;
@@ -113,24 +117,24 @@ export class RetriesMemoryClientV1 implements IRetriesClient {
         });
     }
 
-    public getRetryById(correlationId: string, collection: string, id: string, callback: (err: any, retry: RetryV1) => void): void {
-        let retries = this._items.filter((x) => { return x.id == id && x.collection == collection; });
+    public getRetryById(correlationId: string, group: string, id: string, callback: (err: any, retry: RetryV1) => void): void {
+        let retries = this._items.filter((x) => { return x.id == id && x.group == group; });
         let retry = retries.length > 0 ? retries[0] : null;
         callback(null, retry);
     }
 
-    public getRetryByIds(correlationId: string, collection: string, ids: string[], callback: (err: any, retry: RetryV1[]) => void): void {
+    public getRetryByIds(correlationId: string, group: string, ids: string[], callback: (err: any, retry: RetryV1[]) => void): void {
         let filterRetries = (item: RetryV1) => {
-            return _.indexOf(ids, item.id) >= 0 && item.collection == collection;
+            return _.indexOf(ids, item.id) >= 0 && item.group == group;
         }
         let retrys = _.filter(this._items, filterRetries);
         callback(null, retrys);
     }
 
-    public deleteRetry(correlationId: string, collection: string, id: string, callback: (err: any) => void): void {
+    public deleteRetry(correlationId: string, group: string, id: string, callback: (err: any) => void): void {
         for (let index = this._items.length - 1; index >= 0; index--) {
             let retry = this._items[index];
-            if (retry.collection == collection
+            if (retry.group == group
                 && retry.id == id) {
                 this._items.splice(index, 1);
                 break;
@@ -139,12 +143,12 @@ export class RetriesMemoryClientV1 implements IRetriesClient {
         callback(null);
     }
 
-    public getCollectionNames(correlationId: string, callback: (err: any, items: string[]) => void) {
+    public getGroupNames(correlationId: string, callback: (err: any, items: string[]) => void) {
         let result: string[] = [];
         for (let retry of this._items) {
-            let collection = retry.collection;
-            if (result.indexOf(collection) < 0)
-                result.push(collection);
+            let group = retry.group;
+            if (result.indexOf(group) < 0)
+                result.push(group);
         }
         callback(null, result);
     }

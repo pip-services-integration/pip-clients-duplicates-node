@@ -5,32 +5,32 @@ let assert = require('chai').assert;
 import { FilterParams } from 'pip-services3-commons-node';
 import { PagingParams } from 'pip-services3-commons-node';
 
-import { IRetriesClient } from '../../src/version1/IRetriesClient';
+import { IRetriesClientV1 } from '../../src/version1/IRetriesClientV1';
 
 export class RetriesClientV1Fixture {
-    private _client: IRetriesClient;
+    private _client: IRetriesClientV1;
 
     constructor(persistence) {
         assert.isNotNull(persistence);
         this._client = persistence;
     }
 
-    testGetRetryCollections(done) {
+    testGetRetryGroups(done) {
         async.series([
             // Add retries
             (callback) => {
-                this._client.addRetry(null, "Common.Collection", "123", 3, callback);
+                this._client.addRetry(null, "Common.Group", "123", 3, callback);
             }, (callback) => {
-                this._client.addRetry(null, "Common.AnotherCollection", "123", 3, callback);
+                this._client.addRetry(null, "Common.AnotherGroup", "123", 3, callback);
             }, (callback) => {
-                this._client.addRetry(null, "Common.Collection", "ABC", 3, callback);
+                this._client.addRetry(null, "Common.Group", "ABC", 3, callback);
             }, (callback) => {
 
-                this._client.getCollectionNames(null, (err, items) => {
+                this._client.getGroupNames(null, (err, items) => {
                     assert.isNull(err);
                     assert.equal(2, items.length);
-                    assert.include(items, "Common.Collection");
-                    assert.include(items, "Common.AnotherCollection");
+                    assert.include(items, "Common.Group");
+                    assert.include(items, "Common.AnotherGroup");
                     callback();
                 });
 
@@ -40,15 +40,15 @@ export class RetriesClientV1Fixture {
     testGetRetries(done) {
         async.series([// Add retries
             (callback) => {
-                this._client.addRetry(null, "Common.Collection", "123", 3, callback);
+                this._client.addRetry(null, "Common.Group", "123", 3, callback);
             }, (callback) => {
-                this._client.addRetry(null, "Common.AnotherCollection", "123", 3, callback);
+                this._client.addRetry(null, "Common.AnotherGroup", "123", 3, callback);
             }, (callback) => {
-                this._client.addRetry(null, "Common.Collection", "ABC", 3, callback);
+                this._client.addRetry(null, "Common.Group", "ABC", 3, callback);
             }, (callback) => {
-                this._client.addRetry(null, "Common.Collection", "AAA", 3, callback);
+                this._client.addRetry(null, "Common.Group", "AAA", 3, callback);
             }, (callback) => {
-                this._client.getRetries(null, FilterParams.fromTuples("collection", "Common.Collection"), new PagingParams(1, 10, false), (err, retries) => {
+                this._client.getRetries(null, FilterParams.fromTuples("group", "Common.Group"), new PagingParams(1, 10, false), (err, retries) => {
                     assert.isNull(err);
                     assert.isNotNull(retries.data);
                     assert.equal(2, retries.data.length);
@@ -63,51 +63,51 @@ export class RetriesClientV1Fixture {
         async.series([
             // Add retries
             (callback) => {
-                this._client.addRetry(null, "Common.Collection", "123", 3, callback);;
+                this._client.addRetry(null, "Common.Group", "123", 3, callback);;
             }, (callback) => {
-                this._client.addRetry(null, "Common.AnotherCollection", "123", 3, callback);
+                this._client.addRetry(null, "Common.AnotherGroup", "123", 3, callback);
             }, (callback) => {
-                this._client.addRetry(null, "Common.OtherCollection", "ABC", 3, callback);
+                this._client.addRetry(null, "Common.OtherGroup", "ABC", 3, callback);
             }, (callback) => {
                 // Try to read 1 retry
-                this._client.getRetryById(null, "Common.Collection", "123", (err, retry) => {
+                this._client.getRetryById(null, "Common.Group", "123", (err, retry) => {
                     assert.isNull(err);
                     assert.isNotNull(retry);
                     assert.equal(retry.id, "123");
-                    assert.equal(retry.collection, "Common.Collection");
+                    assert.equal(retry.group, "Common.Group");
                     callback();
                 });
 
             }, (callback) => {
                 // Try to read 2 retry
-                this._client.getRetryById(null, "Common.AnotherCollection", "123", (err, retry) => {
+                this._client.getRetryById(null, "Common.AnotherGroup", "123", (err, retry) => {
                     assert.isNull(err);
                     assert.isNotNull(retry);
                     assert.equal(retry.id, "123");
-                    assert.equal(retry.collection, "Common.AnotherCollection");
+                    assert.equal(retry.group, "Common.AnotherGroup");
                     callback();
                 });
 
             }, (callback) => {
                 // Try to read 3 retry
-                this._client.getRetryById(null, "Common.OtherCollection", "ABC", (err, retry) => {
+                this._client.getRetryById(null, "Common.OtherGroup", "ABC", (err, retry) => {
                     assert.isNull(err);
                     assert.isNotNull(retry);
                     assert.equal(retry.id, "ABC");
-                    assert.equal(retry.collection, "Common.OtherCollection");
+                    assert.equal(retry.group, "Common.OtherGroup");
                     callback();
                 });
 
             }, (callback) => {
-                // Test non-exiting collection
-                this._client.getRetryById(null, "Common.Collection1", "123", (err, retry) => {
+                // Test non-exiting group
+                this._client.getRetryById(null, "Common.Group1", "123", (err, retry) => {
                     assert.isNull(err);
                     assert.isNull(retry);
                     callback();
                 });
             }, (callback) => {
                 // Test non-exiting retry
-                this._client.getRetryById(null, "Common.Collection", "1234", (err, retry) => {
+                this._client.getRetryById(null, "Common.Group", "1234", (err, retry) => {
                     assert.isNull(err);
                     assert.isNull(retry);
                     callback();
